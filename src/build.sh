@@ -115,6 +115,12 @@ for branch in ${BRANCH_NAME//,/ }; do
         patch_name="android_frameworks_base-R.patch"
         permissioncontroller_patch="packages_apps_PermissionController-R.patch"
         ;;
+      dot11*)
+        themuppets_branch="dot11"
+        android_version="11"
+        patch_name="android_frameworks_base-R.patch"
+        permissioncontroller_patch="packages_apps_PermissionController-R.patch"
+        ;;
       *)
         echo ">> [$(date)] Building branch $branch is not (yet) suppported"
         exit 1
@@ -140,11 +146,21 @@ for branch in ${BRANCH_NAME//,/ }; do
     done
 
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
-    else
-      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
-    fi
+    # LineageOS
+    if [ "$ROM" = "LineageOS" = true ]; then
+      if [ "$LOCAL_MIRROR" = true ]; then
+        yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      else
+        yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      fi
+
+    # DotOS
+    if [ "$ROM" = "DotOS" = true ]; then
+      if [ "$LOCAL_MIRROR" = true ]; then
+        yes | repo init -u git://github.com/DotOS/manifest.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      else
+        yes | repo init -u git://github.com/DotOS/manifest.git -b "$branch" &>> "$repo_log"
+      fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
     echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
